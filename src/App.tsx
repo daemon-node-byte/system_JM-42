@@ -1,9 +1,14 @@
 import { Canvas } from "@react-three/fiber";
 import { Stars } from "@react-three/drei";
 import "./App.css";
+// import { useTexture } from "@react-three/drei";
+import PlanetOne from "./components/Planets/PlanetOne";
 import SpaceShip from "./components/SpaceShip";
 
 function App() {
+  // const colorMap = useTexture(
+  //   "/materials/Lucid_Realism_A_highly_stylized_seamless_and_square_depiction__0.jpg"
+  // );
   return (
     <>
       <div className="canvas-container">
@@ -16,12 +21,13 @@ function App() {
           <Stars depth={5000} factor={128} speed={0} />
 
           <SpaceShip url="models/space_fighter/scene.gltf" />
-          <group scale={[100, 100, 100]} position={[-500, -500, 1000]}>
+          {/* <group scale={[100, 100, 100]} position={[-500, -500, 1000]}>
             <mesh>
               <sphereGeometry args={[5, 32, 32]} />
-              <meshStandardMaterial color="orange" />
+              <meshStandardMaterial color={"#8234ff"} />
             </mesh>
-          </group>
+          </group> */}
+          <PlanetOne />
           <pointLight position={[0, 0, 0]} intensity={1} />
         </Canvas>
       </div>
