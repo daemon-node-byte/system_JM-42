@@ -1,11 +1,22 @@
-import { useRef, Suspense, useEffect } from "react";
+import { useRef, Suspense, useEffect, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { Group, Vector3, Euler } from "three";
+import {
+  Group,
+  Vector3,
+  Euler,
+  BufferGeometry,
+  BufferAttribute,
+  Points,
+  ShaderMaterial
+} from "three";
+import engineVertexShader from "../shaders/engineTrail.vert.glsl";
+import engineFragmentShader from "../shaders/engineTrail.frag.glsl";
 
 const ShipModel = ({ url }: { url: string }) => {
   const { scene } = useGLTF(url);
   const shipRef = useRef<Group>(null);
+  const engineParticlesRef = useRef<Points>(null);
   const { camera } = useThree();
   const mouseMovement = useRef({ x: 0, y: 0 });
   const targetRotation = useRef(new Euler(0, 0, 0));
@@ -24,6 +35,54 @@ const ShipModel = ({ url }: { url: string }) => {
     spinLeft: false,
     spinRight: false
   });
+
+  // Create engine trail particles
+  const engineTrailGeometry = useMemo(() => {
+    const particleCount = 50;
+    const geometry = new BufferGeometry();
+
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
+    const sizes = new Float32Array(particleCount);
+
+    for (let i = 0; i < particleCount; i++) {
+      // Initial positions (will be updated in useFrame)
+      positions[i * 3] = 0;
+      positions[i * 3 + 1] = 0;
+      positions[i * 3 + 2] = 0;
+
+      // Blue-white engine colors
+      colors[i * 3] = 0.3 + Math.random() * 0.7; // R
+      colors[i * 3 + 1] = 0.5 + Math.random() * 0.5; // G
+      colors[i * 3 + 2] = 1.0; // B
+
+      // Varying sizes
+      sizes[i] = Math.random() * 3 + 1;
+    }
+
+    geometry.setAttribute("position", new BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new BufferAttribute(colors, 3));
+    geometry.setAttribute("size", new BufferAttribute(sizes, 1));
+
+    return geometry;
+  }, []);
+
+  const engineTrailMaterial = useMemo(() => {
+    return new ShaderMaterial({
+      vertexShader: engineVertexShader,
+      fragmentShader: engineFragmentShader,
+      uniforms: {
+        time: { value: 0 },
+        intensity: { value: 1.0 }
+      },
+      transparent: true,
+      depthWrite: false,
+      blending: 2 // AdditiveBlending
+    });
+  }, []);
+
+  // Store particle trail positions
+  const particleTrail = useRef<Vector3[]>([]);
 
   // Debug: Log when model loads
   console.log("%cShip model loaded:", "color: #0fc", scene);
@@ -226,8 +285,105 @@ const ShipModel = ({ url }: { url: string }) => {
       camera.lookAt(lookAtTarget);
 
       // Add subtle floating animation
-      shipRef.current.position.y += Math.sin(state.clock.elapsedTime) * 0.035;
+      // shipRef.current.position.y += Math.sin(state.clock.elapsedTime) * 0.035;
+      // Update engine trail particles
+      if (
+        engineParticlesRef.current &&
+        (keys.current.forward || keys.current.backward)
+      ) {
+        const isMoving = velocity.current.length() > 0.1;
 
+        if (isMoving) {
+          // Add current ship position to trail with distance-based spawning
+          const currentShipPosition = shipRef.current.position.clone();
+
+          if (
+            particleTrail.current.length === 0 ||
+            currentShipPosition.distanceTo(particleTrail.current[0]) > 0.2
+          ) {
+            particleTrail.current.unshift(currentShipPosition);
+          }
+        }
+
+        // Limit trail length
+        if (particleTrail.current.length > 50) {
+          particleTrail.current.pop();
+        }
+
+        // Update particle positions with exhaust offset applied during rendering
+        const positions = engineParticlesRef.current.geometry.attributes
+          .position.array as Float32Array;
+
+        for (let i = 0; i < Math.min(particleTrail.current.length, 50); i++) {
+          const basePos = particleTrail.current[i];
+          // Apply exhaust offset here during rendering
+          const exhaustOffset = new Vector3(0, -0.2, 1.2);
+          exhaustOffset.applyEuler(currentRotation.current);
+          const exhaustPos = basePos.clone().add(exhaustOffset);
+
+          positions[i * 3] = exhaustPos.x;
+          positions[i * 3 + 1] = exhaustPos.y;
+          positions[i * 3 + 2] = exhaustPos.z;
+        }
+        engineParticlesRef.current.geometry.attributes.position.needsUpdate =
+          true;
+
+        // Update shader uniforms
+        engineTrailMaterial.uniforms.time.value = state.clock.elapsedTime;
+        engineTrailMaterial.uniforms.intensity.value = keys.current.forward
+          ? 1.0
+          : 0.5;
+      } else if (engineParticlesRef.current) {
+        // Fade out particles when not moving
+        engineTrailMaterial.uniforms.intensity.value *= 0.95;
+        if (engineTrailMaterial.uniforms.intensity.value < 0.1) {
+          particleTrail.current = [];
+        }
+        /*
+        // Calculate engine exhaust position (behind the ship)
+        const exhaustOffset = new Vector3(0, -2, -0.2); // Adjust based on your ship model
+        exhaustOffset.applyEuler(currentRotation.current);
+
+        const finalShipPosition = new Vector3().copy(shipRef.current.position);
+
+        const exhaustPosition = new Vector3().addVectors(
+          finalShipPosition,
+          exhaustOffset
+        );
+
+        // Add current exhaust position to trail
+        particleTrail.current.unshift(exhaustPosition.clone());
+
+        // Limit trail length
+        if (particleTrail.current.length > 50) {
+          particleTrail.current.pop();
+        }
+
+        // Update particle positions
+        const positions = engineParticlesRef.current.geometry.attributes
+          .position.array as Float32Array;
+        for (let i = 0; i < Math.min(particleTrail.current.length, 50); i++) {
+          const pos = particleTrail.current[i];
+          positions[i * 3] = pos.x;
+          positions[i * 3 + 1] = pos.y;
+          positions[i * 3 + 2] = pos.z;
+        }
+        engineParticlesRef.current.geometry.attributes.position.needsUpdate =
+          true;
+
+        // Update shader uniforms
+        engineTrailMaterial.uniforms.time.value = state.clock.elapsedTime;
+        engineTrailMaterial.uniforms.intensity.value = keys.current.forward
+          ? 1.0
+          : 0.5;
+      } else if (engineParticlesRef.current) {
+        // Fade out particles when not moving
+        engineTrailMaterial.uniforms.intensity.value *= 0.95;
+        if (engineTrailMaterial.uniforms.intensity.value < 0.1) {
+          particleTrail.current = [];
+        }
+          */
+      }
       // Gradually reduce mouse movement influence
       mouseMovement.current.x *= 0.95;
       mouseMovement.current.y *= 0.95;
@@ -237,6 +393,11 @@ const ShipModel = ({ url }: { url: string }) => {
   return (
     <group ref={shipRef}>
       <primitive scale={[0.12, 0.12, 0.12]} object={scene} />
+      <points
+        ref={engineParticlesRef}
+        geometry={engineTrailGeometry}
+        material={engineTrailMaterial}
+      />
     </group>
   );
 };
