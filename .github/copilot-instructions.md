@@ -46,4 +46,45 @@ Configuration for AI behavior when interacting with Codacy's MCP Server
 - If the user accepts, run the `codacy_setup_repository` tool
 - Do not ever try to run the `codacy_setup_repository` tool on your own
 - After setup, immediately retry the action that failed (only retry once)
+
+# Threejs Rules
+Configuration for AI behavior when interacting with Three.js
+
+- Important: Always refer to official documentation when using Three.js or related Libraries. i.e, react-three-fiber, react-three-drei, etc.
+- use `context7` for all documentation references.
+- always prefer the official documentation over any other source.
+- If you are unsure about a Three.js related question, always refer to the official documentation first.
+- If you are unable to find the answer in the official documentation, then you can refer to other sources.
+
+
+# Coding Practices
+Configuration for AI behavior when writing code
+
+- Always prefer `pnpm` over `npm` or `yarn` for package management.
+- Always use `pnpm` for installing packages, running scripts, and managing dependencies.
+- Always modularize code into smaller, reusable components.
+- Always use `async/await` for asynchronous operations.
+- Always use `const` or `let` instead of `var` for variable declarations.
+- Always use arrow functions for function expressions.
+- Always use template literals for string interpolation.
+- Always use destructuring for object and array assignments.
+- Always use meaningful variable and function names.
+- Always write clean, readable, and maintainable code.
+
+- Follow the DRY (Don't Repeat Yourself) principle.
+- Follow the KISS (Keep It Simple, Stupid) principle.
+- Follow the YAGNI (You Aren't Gonna Need It) principle.
+
+- Maintain a consistent coding style throughout the codebase.
+- Maintain a consistent file structure.
+
+- Provide clear and concise comments where necessary.
+- Ensure comments are up-to-date and relevant to the code.
+- When leaving comments, focus on explaining the "why" rather than the "what" of the code.
+- Use JSDoc comments for functions, classes, and complex logic to provide clear documentation.
+- Keep comments concise and relevant, avoiding unnecessary verbosity.
+- Use meaningful commit messages that describe the changes made.
+- Keep README files up-to-date with relevant information about the project.
+- Maintain separate documentation files for complex components or modules.
+
 ---
