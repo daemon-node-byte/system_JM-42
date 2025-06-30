@@ -1,18 +1,30 @@
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
+import { Group } from "three";
 
 const PlanetOne = () => {
+  const planetRef = useRef<Group>(null);
+  const texturePath = "/materials/planetTwo";
   const props = useTexture({
-    map: "/materials/planetOne-texture/color.jpg",
-    displacementMap:
-      "/materials/planetOne-texture/textture_SSBump_inverted.jpg",
-    normalMap: "/materials/planetOne-texture/textture_Normal.jpg",
-    roughnessMap: "/materials/planetOne-texture/textture_SSBump_inverted.jpg",
-    aoMap: "/materials/planetOne-texture/ao.jpg"
+    map: texturePath + "/color.png",
+    displacementMap: texturePath + "/displacement.png",
+    normalMap: texturePath + "/normal.png",
+    aoMap: texturePath + "/ao.png",
+    roughnessMap: texturePath + "/specular.png"
+  });
+  useFrame((_, delta) => {
+    if (planetRef.current) {
+      planetRef.current.rotation.y -= delta * 0.02;
+    }
   });
   return (
     <Suspense fallback={null}>
-      <group scale={[100, 100, 100]} position={[-500, -500, 1000]}>
+      <group
+        ref={planetRef}
+        scale={[100, 100, 100]}
+        position={[-500, -500, 1000]}
+      >
         <mesh>
           <sphereGeometry args={[5, 32, 32]} />
           <meshStandardMaterial {...props} />

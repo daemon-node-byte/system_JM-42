@@ -92,7 +92,7 @@ const ShipModel = ({ url }: { url: string }) => {
 
     // Update exhaust position in world space (only if exhaustRef exists)
     if (exhaustRef.current) {
-      const exhaustOffset = new Vector3(0, 0.2, -1.2);
+      const exhaustOffset = new Vector3(0, 0.2, -1.8);
       exhaustOffset.applyEuler(currentRotation.current);
       exhaustRef.current.position.copy(shipPosition.current).add(exhaustOffset);
     }
@@ -120,19 +120,19 @@ const ShipModel = ({ url }: { url: string }) => {
       {/* Engine Trail - Outside ship group so it doesn't rotate with ship */}
       {isEngineActive && (
         <Trail
-          width={isEngineActive ? 2.5 : 0} // Trail width
+          width={isEngineActive ? 2.7 : 0} // Trail width
           color="#00ffff" // Cyan engine color
-          length={25} // Trail length
-          decay={1.8} // How fast the trail fades
-          local={false} // Use world positions (important!)
-          stride={0.08} // Min distance between trail points
+          length={2} // Trail length
+          decay={1} // How fast the trail fades
+          local={true} // Use world positions (important!)
+          stride={0.002} // Min distance between trail points
           interval={1} // Frames between calculations
-          attenuation={(width) => width * 0.9} // Width tapering function
+          attenuation={(width) => width * 1.2} // Width tapering function
         >
           {/* Exhaust tracking point - follows ship but stays in world space */}
           <group ref={exhaustRef}>
             <mesh visible={false}>
-              <sphereGeometry args={[0.01, 4, 4]} />
+              <sphereGeometry args={[0.02, 4, 4]} />
             </mesh>
           </group>
         </Trail>
