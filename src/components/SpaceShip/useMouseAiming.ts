@@ -75,12 +75,19 @@ export const useMouseAiming = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.code === "KeyR") {
         // Right mouse button alternative
+        console.log("%cAiming activated (R key)", "color: #ff0040");
         setIsAiming(true);
+      }
+      if (event.code === "KeyT") {
+        // Toggle aiming for testing
+        console.log("%cToggling aiming state (T key)", "color: #ff0040");
+        setIsAiming((prev) => !prev);
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
       if (event.code === "KeyR") {
+        console.log("%cAiming deactivated (R key)", "color: #ff0040");
         setIsAiming(false);
         aimOffset.current.set(0, 0);
         tiltAmount.current.set(0, 0);
@@ -91,12 +98,14 @@ export const useMouseAiming = ({
       if (event.button === 2) {
         // Right mouse button
         event.preventDefault();
+        console.log("%cAiming activated (Right mouse)", "color: #ff0040");
         setIsAiming(true);
       }
     };
 
     const handleMouseUp = (event: MouseEvent) => {
       if (event.button === 2) {
+        console.log("%cAiming deactivated (Right mouse)", "color: #ff0040");
         setIsAiming(false);
         aimOffset.current.set(0, 0);
         tiltAmount.current.set(0, 0);

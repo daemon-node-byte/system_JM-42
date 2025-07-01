@@ -9,6 +9,12 @@ interface CrosshairsProps {
 const Crosshairs = ({ aimPosition, isAiming }: CrosshairsProps) => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
+  // Debug logging
+  console.log("%cCrosshairs props:", "color: #ff8800", {
+    isAiming,
+    aimPosition
+  });
+
   useEffect(() => {
     const handleMouseMove = (event: MouseEvent) => {
       setMousePos({

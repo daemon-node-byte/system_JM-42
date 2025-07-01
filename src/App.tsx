@@ -18,6 +18,7 @@ function App() {
   useEffect(() => {
     // Listen for aiming state changes from the ship
     const handleAimingChange = (event: CustomEvent) => {
+      console.log("%cAiming state changed:", "color: #00ff00", event.detail);
       setAimingState(event.detail);
     };
 

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, Trail } from "@react-three/drei";
 import { Group, Vector3, Euler } from "three";
@@ -54,6 +54,17 @@ const ShipModel = ({ url }: { url: string }) => {
 
   // Initialize input controls
   useInputControls({ keys, mouseMovement });
+
+  // Dispatch aiming state changes to parent component
+  useEffect(() => {
+    const aimingStateChangeEvent = new CustomEvent("aimingStateChange", {
+      detail: {
+        isAiming: mouseAiming.isAiming,
+        aimPosition: mouseAiming.aimPosition
+      }
+    });
+    window.dispatchEvent(aimingStateChangeEvent);
+  }, [mouseAiming.isAiming, mouseAiming.aimPosition]);
 
   // Debug: Log when model loads
   console.log("%cShip model loaded:", "color: #0fc", scene);
@@ -172,10 +183,6 @@ const ShipModel = ({ url }: { url: string }) => {
             </mesh>
           </group>
         </Trail>
-      )}
-      {/* Pass aiming state to parent for crosshairs */}
-      {mouseAiming.isAiming && (
-        <primitive object={{ aimingState: mouseAiming }} />
       )}
     </>
   );
