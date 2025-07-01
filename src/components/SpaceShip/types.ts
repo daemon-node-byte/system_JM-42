@@ -12,6 +12,7 @@ export interface KeyState {
   rollRight: boolean;
   spinLeft: boolean;
   spinRight: boolean;
+  fire: boolean;
 }
 
 export interface MouseMovement {
@@ -53,3 +54,36 @@ export const DEFAULT_MOVEMENT_CONFIG: MovementConfig = {
   spinSpeed: 1.5,
   maxRollAngle: Math.PI / 4
 };
+
+export interface Laser {
+  id: string;
+  position: Vector3;
+  direction: Vector3;
+  speed: number;
+  lifeTime: number;
+  maxLifeTime: number;
+}
+
+export interface LaserConfig {
+  speed: number;
+  lifeTime: number; // in seconds
+  fireRate: number; // shots per second
+  color: string;
+  size: number;
+  damage: number;
+}
+
+export const DEFAULT_LASER_CONFIG: LaserConfig = {
+  speed: 30,
+  lifeTime: 5.0, // Increased for better visibility
+  fireRate: 5, // Reduced to 5 shots per second for testing
+  color: "#ff0040",
+  size: 0.1,
+  damage: 10
+};
+
+export interface LaserSystemState {
+  lasers: MutableRefObject<Laser[]>;
+  lastFireTime: MutableRefObject<number>;
+  fireKey: boolean;
+}

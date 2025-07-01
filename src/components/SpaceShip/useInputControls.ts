@@ -42,7 +42,7 @@ export const useInputControls = ({
           break;
         case "Space":
           event.preventDefault();
-          keys.current.up = true;
+          keys.current.fire = true;
           break;
         case "ShiftLeft":
           keys.current.forward = true;
@@ -74,7 +74,7 @@ export const useInputControls = ({
           break;
         case "Space":
           event.preventDefault();
-          keys.current.up = false;
+          keys.current.fire = false;
           break;
         case "ShiftLeft":
           keys.current.forward = false;

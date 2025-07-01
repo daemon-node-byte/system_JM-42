@@ -5,13 +5,13 @@ import { Group } from "three";
 
 const PlanetOne = () => {
   const planetRef = useRef<Group>(null);
-  const texturePath = "/materials/planetTwo";
+  const texturePath = "/materials/_texture";
   const props = useTexture({
-    map: texturePath + "/color.png",
-    displacementMap: texturePath + "/displacement.png",
+    map: texturePath + "/color.jpeg",
+    displacementMap: texturePath + "/displace.png",
     normalMap: texturePath + "/normal.png",
-    aoMap: texturePath + "/ao.png",
-    roughnessMap: texturePath + "/specular.png"
+    aoMap: texturePath + "/aomap.png"
+    // roughnessMap: texturePath + "/specular.png"
   });
   useFrame((_, delta) => {
     if (planetRef.current) {

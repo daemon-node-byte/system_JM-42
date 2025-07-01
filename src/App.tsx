@@ -1,14 +1,38 @@
+import { useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Stars } from "@react-three/drei";
 import "./App.css";
 // import { useTexture } from "@react-three/drei";
 import PlanetOne from "./components/Planets/PlanetOne";
 import SpaceShip from "./components/SpaceShip";
+import Crosshairs from "./components/SpaceShip/Crosshairs";
 
 function App() {
   // const colorMap = useTexture(
   //   "/materials/Lucid_Realism_A_highly_stylized_seamless_and_square_depiction__0.jpg"
   // );
+  const [aimingState, setAimingState] = useState({
+    isAiming: false,
+    aimPosition: { x: 0, y: 0 }
+  });
+  useEffect(() => {
+    // Listen for aiming state changes from the ship
+    const handleAimingChange = (event: CustomEvent) => {
+      setAimingState(event.detail);
+    };
+
+    window.addEventListener(
+      "aimingStateChange",
+      handleAimingChange as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "aimingStateChange",
+        handleAimingChange as EventListener
+      );
+    };
+  }, []);
   return (
     <>
       <div className="canvas-container">
@@ -31,6 +55,11 @@ function App() {
           <pointLight position={[0, 0, 0]} intensity={1} />
         </Canvas>
       </div>
+      {/* Crosshairs overlay */}
+      <Crosshairs
+        aimPosition={aimingState.aimPosition}
+        isAiming={aimingState.isAiming}
+      />
     </>
   );
 }

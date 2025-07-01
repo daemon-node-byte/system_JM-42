@@ -1,14 +1,15 @@
-import { Vector3, Euler } from "three";
+import { Vector3, Euler, Vector2 } from "three";
 import type { KeyState, MouseMovement, MovementConfig } from "./types";
-import type { MutableRefObject } from "react";
+import type { RefObject } from "react";
 
 interface UpdateRotationParams {
-  mouseMovement: MutableRefObject<MouseMovement>;
-  targetRotation: MutableRefObject<Euler>;
-  currentRotation: MutableRefObject<Euler>;
-  keys: MutableRefObject<KeyState>;
+  mouseMovement: RefObject<MouseMovement>;
+  targetRotation: RefObject<Euler>;
+  currentRotation: RefObject<Euler>;
+  keys: RefObject<KeyState>;
   config: MovementConfig;
   delta: number;
+  aimTilt?: Vector2;
 }
 
 export const updateShipRotation = ({
@@ -17,7 +18,8 @@ export const updateShipRotation = ({
   currentRotation,
   keys,
   config,
-  delta
+  delta,
+  aimTilt
 }: UpdateRotationParams) => {
   const {
     tiltAmount,
@@ -31,6 +33,15 @@ export const updateShipRotation = ({
   // Update ship rotation based on mouse movement
   targetRotation.current.x += mouseMovement.current.y * tiltAmount;
   targetRotation.current.y += mouseMovement.current.x * tiltAmount;
+
+  // Add aiming tilt if present
+  if (aimTilt) {
+    targetRotation.current.x += aimTilt.y * 0.3; // Pitch based on vertical aim
+    targetRotation.current.y += aimTilt.x * 0.3; // Yaw based on horizontal aim
+
+    // Add slight roll based on horizontal aiming for more natural feel
+    targetRotation.current.z += aimTilt.x * 0.2;
+  }
 
   // Add manual roll control (A/D keys)
   if (keys.current.rollLeft) {
@@ -81,10 +92,10 @@ export const updateShipRotation = ({
 };
 
 interface UpdateMovementParams {
-  keys: MutableRefObject<KeyState>;
-  currentRotation: MutableRefObject<Euler>;
-  velocity: MutableRefObject<Vector3>;
-  shipPosition: MutableRefObject<Vector3>;
+  keys: RefObject<KeyState>;
+  currentRotation: RefObject<Euler>;
+  velocity: RefObject<Vector3>;
+  shipPosition: RefObject<Vector3>;
   config: MovementConfig;
   delta: number;
 }

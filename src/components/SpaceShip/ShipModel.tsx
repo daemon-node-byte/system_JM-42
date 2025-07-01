@@ -4,10 +4,14 @@ import { useGLTF, Trail } from "@react-three/drei";
 import { Group, Vector3, Euler } from "three";
 
 import { useInputControls } from "./useInputControls";
+import { useMouseAiming } from "./useMouseAiming";
 import { updateShipRotation, updateShipMovement } from "./shipPhysics";
 import { updateCamera } from "./cameraControls";
 import { reduceMouseMovement } from "./mouseUtils";
-import { DEFAULT_MOVEMENT_CONFIG } from "./types";
+import { updateLasers, fireLaser } from "./laserPhysics";
+import { useLaserSystem } from "./useLaserSystem";
+import LaserRenderer from "./LaserRenderer";
+import { DEFAULT_MOVEMENT_CONFIG, DEFAULT_LASER_CONFIG } from "./types";
 import type { KeyState, MouseMovement } from "./types";
 
 const ShipModel = ({ url }: { url: string }) => {
@@ -18,6 +22,15 @@ const ShipModel = ({ url }: { url: string }) => {
 
   // Engine state that gets updated in useFrame
   const [isEngineActive, setIsEngineActive] = useState(false);
+
+  // Laser system
+  const laserSystem = useLaserSystem();
+
+  // Mouse aiming system
+  const mouseAiming = useMouseAiming({
+    maxAimRadius: 250,
+    tiltSensitivity: 0.004
+  });
 
   // Ship state
   const mouseMovement = useRef<MouseMovement>({ x: 0, y: 0 });
@@ -35,7 +48,8 @@ const ShipModel = ({ url }: { url: string }) => {
     rollLeft: false,
     rollRight: false,
     spinLeft: false,
-    spinRight: false
+    spinRight: false,
+    fire: false
   });
 
   // Initialize input controls
@@ -71,7 +85,8 @@ const ShipModel = ({ url }: { url: string }) => {
       currentRotation,
       keys,
       config: DEFAULT_MOVEMENT_CONFIG,
-      delta
+      delta,
+      aimTilt: mouseAiming.isAiming ? mouseAiming.tiltAmount : undefined
     });
 
     // Apply rotation to ship
@@ -89,6 +104,24 @@ const ShipModel = ({ url }: { url: string }) => {
 
     // Apply position to ship
     shipRef.current.position.copy(shipPosition.current);
+
+    updateLasers({
+      lasers: laserSystem.lasers,
+      delta,
+      config: DEFAULT_LASER_CONFIG
+    });
+
+    // Fire lasers
+    fireLaser({
+      lasers: laserSystem.lasers,
+      lastFireTime: laserSystem.lastFireTime,
+      shipPosition,
+      shipRotation: currentRotation,
+      keys,
+      config: DEFAULT_LASER_CONFIG,
+      currentTime: Date.now(),
+      aimOffset: mouseAiming.isAiming ? mouseAiming.aimOffset : undefined
+    });
 
     // Update exhaust position in world space (only if exhaustRef exists)
     if (exhaustRef.current) {
@@ -117,6 +150,9 @@ const ShipModel = ({ url }: { url: string }) => {
         <primitive scale={[0.12, 0.12, 0.12]} object={scene} />
       </group>
 
+      {/* Laser System */}
+      <LaserRenderer lasers={laserSystem.lasers} />
+
       {/* Engine Trail - Outside ship group so it doesn't rotate with ship */}
       {isEngineActive && (
         <Trail
@@ -136,6 +172,10 @@ const ShipModel = ({ url }: { url: string }) => {
             </mesh>
           </group>
         </Trail>
+      )}
+      {/* Pass aiming state to parent for crosshairs */}
+      {mouseAiming.isAiming && (
+        <primitive object={{ aimingState: mouseAiming }} />
       )}
     </>
   );
