@@ -9,7 +9,7 @@ const PlanetOne = () => {
   const props = useTexture({
     map: texturePath + "/color.jpeg",
     displacementMap: texturePath + "/displace.png",
-    normalMap: texturePath + "/normal.png",
+    normalMap: texturePath + "/normal2.png",
     aoMap: texturePath + "/aomap.png"
     // roughnessMap: texturePath + "/specular.png"
   });
@@ -26,7 +26,7 @@ const PlanetOne = () => {
         position={[-500, -500, 1000]}
       >
         <mesh>
-          <sphereGeometry args={[5, 32, 32]} />
+          <sphereGeometry args={[3, 1024, 1024]} />
           <meshStandardMaterial {...props} />
         </mesh>
       </group>

@@ -1,4 +1,4 @@
-import type { MouseMovement } from "./types";
+import type { MouseMovement } from "../components/SpaceShip/types";
 import type { MutableRefObject } from "react";
 
 export const reduceMouseMovement = (

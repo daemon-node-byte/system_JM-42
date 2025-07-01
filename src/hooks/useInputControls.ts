@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import type { KeyState, MouseMovement } from "./types";
+import type { KeyState, MouseMovement } from "../components/SpaceShip/types";
 import type { MutableRefObject } from "react";
 
 interface UseInputControlsProps {

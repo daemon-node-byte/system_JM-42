@@ -1,10 +1,10 @@
 import { Vector3, Euler, Camera } from "three";
-import type { MutableRefObject } from "react";
+import type { RefObject } from "react";
 
 interface UpdateCameraParams {
   camera: Camera;
-  shipPosition: MutableRefObject<Vector3>;
-  currentRotation: MutableRefObject<Euler>;
+  shipPosition: RefObject<Vector3>;
+  currentRotation: RefObject<Euler>;
 }
 
 export const updateCamera = ({

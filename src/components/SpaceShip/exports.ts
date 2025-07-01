@@ -1,19 +1,17 @@
 // Main component export
-export { default } from "./index";
+export { default } from "./index.tsx";
 
-// Individual components for advanced usage
-export { default as ShipModel } from "./ShipModel";
-export { default as FallbackLoader } from "./FallbackLoader";
+// Component exports
+export * from ".";
 
-// Hooks and utilities
-export { useInputControls } from "./useInputControls";
-export { useEngineTrail } from "./useEngineTrail";
+// Hook exports
+export * from "../../hooks";
 
-// Physics and control functions
-export { updateShipRotation, updateShipMovement } from "./shipPhysics";
-export { updateCamera } from "./cameraControls";
-export { updateEngineTrail } from "./engineTrailUpdater";
-export { reduceMouseMovement } from "./mouseUtils";
+// Physics exports
+export * from "../../physics";
+
+// Utility exports
+export * from "../../utils";
 
 // Types and constants
 export type {
@@ -21,6 +19,9 @@ export type {
   MouseMovement,
   ShipRefs,
   ShipState,
-  MovementConfig
+  MovementConfig,
+  Laser,
+  LaserConfig,
+  LaserSystemState
 } from "./types";
-export { DEFAULT_MOVEMENT_CONFIG } from "./types";
+export { DEFAULT_MOVEMENT_CONFIG, DEFAULT_LASER_CONFIG } from "./types";

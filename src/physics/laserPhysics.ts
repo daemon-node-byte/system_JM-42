@@ -1,5 +1,9 @@
 import { Vector3, Euler, Vector2 } from "three";
-import type { Laser, LaserConfig, KeyState } from "./types";
+import type {
+  Laser,
+  LaserConfig,
+  KeyState
+} from "../components/SpaceShip/types";
 import type { RefObject } from "react";
 
 interface UpdateLasersParams {
@@ -78,7 +82,7 @@ export const fireLaser = ({
     if (aimOffset) {
       // Create aiming adjustment based on aim offset
       const aimAdjustment = new Vector3(
-        aimOffset.x * 0.001, // Horizontal aiming
+        -aimOffset.x * 0.001, // Horizontal aiming
         -aimOffset.y * 0.001, // Vertical aiming (inverted)
         0
       );

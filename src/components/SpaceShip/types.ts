@@ -1,5 +1,5 @@
 import { Group, Points, Vector3, Euler } from "three";
-import type { MutableRefObject } from "react";
+import type { RefObject } from "react";
 
 export interface KeyState {
   forward: boolean;
@@ -21,18 +21,18 @@ export interface MouseMovement {
 }
 
 export interface ShipRefs {
-  shipRef: MutableRefObject<Group | null>;
-  engineParticlesRef: MutableRefObject<Points | null>;
+  shipRef: RefObject<Group | null>;
+  engineParticlesRef: RefObject<Points | null>;
 }
 
 export interface ShipState {
-  mouseMovement: MutableRefObject<MouseMovement>;
-  targetRotation: MutableRefObject<Euler>;
-  currentRotation: MutableRefObject<Euler>;
-  velocity: MutableRefObject<Vector3>;
-  shipPosition: MutableRefObject<Vector3>;
-  keys: MutableRefObject<KeyState>;
-  particleTrail: MutableRefObject<Vector3[]>;
+  mouseMovement: RefObject<MouseMovement>;
+  targetRotation: RefObject<Euler>;
+  currentRotation: RefObject<Euler>;
+  velocity: RefObject<Vector3>;
+  shipPosition: RefObject<Vector3>;
+  keys: RefObject<KeyState>;
+  particleTrail: RefObject<Vector3[]>;
 }
 
 export interface MovementConfig {
@@ -83,7 +83,7 @@ export const DEFAULT_LASER_CONFIG: LaserConfig = {
 };
 
 export interface LaserSystemState {
-  lasers: MutableRefObject<Laser[]>;
-  lastFireTime: MutableRefObject<number>;
+  lasers: RefObject<Laser[]>;
+  lastFireTime: RefObject<number>;
   fireKey: boolean;
 }

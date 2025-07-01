@@ -1,5 +1,5 @@
 import { Vector3, Euler, Points, ShaderMaterial } from "three";
-import type { KeyState } from "./types";
+import type { KeyState } from "../components/SpaceShip/types";
 import type { MutableRefObject } from "react";
 
 interface UpdateEngineTrailParams {

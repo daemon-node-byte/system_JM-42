@@ -1,28 +1,62 @@
 # SpaceShip Component
 
-A refactored and modular spaceship component for 3D space simulation with keyboard/mouse controls, physics, and particle effects.
+A modular spaceship component for 3D space simulation with keyboard/mouse controls, physics, aiming system, and laser weapons.
 
-## Structure
+## Folder Structure
 
-The component has been broken down into focused, maintainable modules:
+```
+src/components/SpaceShip/
+├── index.tsx                     # Main export
+├── README.md                     # Documentation
+├── types.ts                      # Type definitions
+├── exports.ts                    # Barrel exports
+├── components/                   # React components
+│   ├── ShipModel.tsx            # Core ship rendering
+│   ├── LaserRenderer.tsx        # Laser beam rendering
+│   ├── FallbackLoader.tsx       # Loading fallback
+│   ├── DreiTrailEngine.tsx      # Alternative engine trail
+│   └── UI/
+│       ├── Crosshairs.tsx       # Aiming crosshairs
+│       └── Crosshairs.css       # Crosshairs styling
+├── hooks/                        # Custom React hooks
+│   ├── useInputControls.ts      # Input handling
+│   ├── useLaserSystem.ts        # Laser state management
+│   ├── useEngineTrail.ts        # Engine particle effects
+│   └── useMouseAiming.ts        # Mouse aiming system
+├── physics/                      # Game physics logic
+│   ├── shipPhysics.ts           # Ship movement/rotation
+│   ├── laserPhysics.ts          # Laser physics/firing
+│   └── engineTrailUpdater.ts   # Legacy engine trail
+└── utils/                        # Utility functions
+    ├── mouseUtils.ts            # Mouse utilities
+    └── cameraControls.ts        # Camera following
+```
 
-### Core Components
+## Core Components
 
-- **`index.tsx`** - Main SpaceShip component with Suspense wrapper
-- **`ShipModel.tsx`** - Core ship rendering and animation logic
-- **`FallbackLoader.tsx`** - Loading fallback component
+### Main Components
 
-### Utilities & Hooks
+- **`ShipModel.tsx`** - Core ship rendering and game loop integration
+- **`LaserRenderer.tsx`** - 3D laser beam rendering with physics
+- **`UI/Crosshairs.tsx`** - HUD crosshairs for aiming system
+
+### Custom Hooks
 
 - **`useInputControls.ts`** - Keyboard and mouse input handling
-- **`shipPhysics.ts`** - Ship movement and rotation physics
-- **`cameraControls.ts`** - Camera following and positioning logic
-- **`mouseUtils.ts`** - Mouse movement utilities
+- **`useLaserSystem.ts`** - Laser state and lifecycle management
+- **`useMouseAiming.ts`** - Mouse aiming with limited radius
+- **`useEngineTrail.ts`** - Engine particle effect management
 
-### Configuration & Types
+### Physics Systems
 
-- **`types.ts`** - TypeScript interfaces and default configurations
-- **`exports.ts`** - Barrel exports for clean imports
+- **`shipPhysics.ts`** - Ship movement, rotation, and banking
+- **`laserPhysics.ts`** - Laser firing, movement, and collision
+- **`engineTrailUpdater.ts`** - Custom engine trail particles
+
+### Utilities
+
+- **`cameraControls.ts`** - Camera following and positioning
+- **`mouseUtils.ts`** - Mouse movement smoothing utilities
 
 ## Features
 
