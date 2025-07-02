@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "@/style/Crosshairs.css";
+import "../../styles/Crosshairs.css";
 
 interface CrosshairsProps {
   aimPosition: { x: number; y: number };

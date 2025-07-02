@@ -8,5 +8,9 @@ export const createSceneSlice: StateCreator<
   SceneStoreSlice
 > = (set) => ({
   isLoading: false,
-  setLoading: (loading: boolean) => set({ isLoading: loading })
+  fps: 0,
+  frameTime: 0,
+  setIsLoading: (loading: boolean) => set({ isLoading: loading }),
+  updatePerformanceMetrics: (fps: number, frameTime: number) =>
+    set({ fps, frameTime })
 });

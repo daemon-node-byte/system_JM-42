@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Vector2 } from "three";
+import { useStore } from "@/store";
 
 interface MouseAimingState {
-  aimOffset: Vector2;
+  aimOffset: { x: number; y: number };
   isAiming: boolean;
   aimPosition: { x: number; y: number };
-  tiltAmount: Vector2;
+  tiltAmount: { x: number; y: number };
 }
 
 interface UseMouseAimingProps {
@@ -17,127 +17,65 @@ export const useMouseAiming = ({
   maxAimRadius = 200,
   tiltSensitivity = 0.003
 }: UseMouseAimingProps = {}): MouseAimingState => {
-  const [isAiming, setIsAiming] = useState(false);
-  const [aimPosition, setAimPosition] = useState({ x: 0, y: 0 });
-  const aimOffset = useRef(new Vector2(0, 0));
-  const tiltAmount = useRef(new Vector2(0, 0));
-  const centerPos = useRef({ x: 0, y: 0 });
+  const centerPos = useRef<{ x: number; y: number }>({
+    x: 0,
+    y: 0
+  });
+  const { isAiming, aimOffset, aimPosition, tiltAmount } = useStore(
+    (state) => state
+  );
 
   useEffect(() => {
-    // Calculate screen center
-    const updateCenter = () => {
+    function updateCenter() {
+      // Calculate screen center
       centerPos.current = {
         x: window.innerWidth / 2,
         y: window.innerHeight / 2
       };
-    };
-
+    }
     updateCenter();
+
     window.addEventListener("resize", updateCenter);
 
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!isAiming) return;
-
+    /* *TODO - Offset calculations
       // Calculate offset from screen center
       const offsetX = event.clientX - centerPos.current.x;
       const offsetY = event.clientY - centerPos.current.y;
-
       // Calculate distance from center
       const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
 
+      // TODO: Implement clamping logic
+      // * didn't work with crosshairs, needs to be rethought
       // Clamp to maximum radius
       if (distance > maxAimRadius) {
-        const angle = Math.atan2(offsetY, offsetX);
-        const clampedX = Math.cos(angle) * maxAimRadius;
-        const clampedY = Math.sin(angle) * maxAimRadius;
-
-        aimOffset.current.set(clampedX, clampedY);
+        // const angle = Math.atan2(offsetY, offsetX);
+        // const clampedX = Math.cos(angle) * maxAimRadius;
+        // const clampedY = Math.sin(angle) * maxAimRadius;
+        // aimOffset.current.set(clampedX, clampedY);
       } else {
-        aimOffset.current.set(offsetX, offsetY);
+        // aimOffset.current.set(offsetX, offsetY);
       }
+      */
 
-      // Calculate tilt amounts (normalized)
-      const normalizedX = aimOffset.current.x / maxAimRadius;
-      const normalizedY = aimOffset.current.y / maxAimRadius;
+    // Calculate tilt amounts (normalized)
+    // const normalizedX = aimOffset.current.x / maxAimRadius;
+    // const normalizedY = aimOffset.current.y / maxAimRadius;
 
-      tiltAmount.current.set(
-        normalizedX * tiltSensitivity,
-        -normalizedY * tiltSensitivity // Invert Y for proper tilt direction
-      );
+    // tiltAmount.current.set(
+    //   normalizedX * tiltSensitivity,
+    //   -normalizedY * tiltSensitivity // Invert Y for proper tilt direction
+    // );
 
-      setAimPosition({
-        x: event.clientX,
-        y: event.clientY
-      });
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "KeyR") {
-        // Right mouse button alternative
-        console.log("%cAiming activated (R key)", "color: #ff0040");
-        setIsAiming(true);
-      }
-      if (event.code === "KeyT") {
-        // Toggle aiming for testing
-        console.log("%cToggling aiming state (T key)", "color: #ff0040");
-        setIsAiming((prev) => !prev);
-      }
-    };
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.code === "KeyR") {
-        console.log("%cAiming deactivated (R key)", "color: #ff0040");
-        setIsAiming(false);
-        aimOffset.current.set(0, 0);
-        tiltAmount.current.set(0, 0);
-      }
-    };
-
-    const handleMouseDown = (event: MouseEvent) => {
-      if (event.button === 2) {
-        // Right mouse button
-        event.preventDefault();
-        console.log("%cAiming activated (Right mouse)", "color: #ff0040");
-        setIsAiming(true);
-      }
-    };
-
-    const handleMouseUp = (event: MouseEvent) => {
-      if (event.button === 2) {
-        console.log("%cAiming deactivated (Right mouse)", "color: #ff0040");
-        setIsAiming(false);
-        aimOffset.current.set(0, 0);
-        tiltAmount.current.set(0, 0);
-      }
-    };
-
-    const handleContextMenu = (event: MouseEvent) => {
-      event.preventDefault();
-    };
+    // setAimPosition({
+    //   x: event.clientX,
+    //   y: event.clientY
+    // });
+    // };
 
     // Add event listeners
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    window.addEventListener("mousedown", handleMouseDown);
-    window.addEventListener("mouseup", handleMouseUp);
-    window.addEventListener("contextmenu", handleContextMenu);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-      window.removeEventListener("mousedown", handleMouseDown);
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("contextmenu", handleContextMenu);
       window.removeEventListener("resize", updateCenter);
     };
-  }, [isAiming, maxAimRadius, tiltSensitivity]);
-
-  return {
-    aimOffset: aimOffset.current,
-    isAiming,
-    aimPosition,
-    tiltAmount: tiltAmount.current
-  };
+  }, [maxAimRadius, tiltSensitivity]);
 };

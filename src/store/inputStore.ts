@@ -6,10 +6,10 @@ export const createInputSlice: StateCreator<
   [],
   [],
   InputStoreSlice
-> = (set) => ({
+> = (set, get) => ({
   keys: {
-    forward: false,
-    backward: false,
+    thrustForward: false,
+    thrustBackward: false,
     left: false,
     right: false,
     up: false,
@@ -18,18 +18,49 @@ export const createInputSlice: StateCreator<
     rollRight: false,
     spinLeft: false,
     spinRight: false,
-    fire: false
+    fire: false,
+    aimControls: false
   },
   mouseMovement: {
     x: 0,
     y: 0
   },
+  mouseButtons: {
+    left: false,
+    middle: false,
+    right: false,
+    scrollUp: false,
+    scrollDown: false
+  },
+  keyHistory: [],
+  mouseHistory: [],
   updateKeys: (keys) =>
-    set((state) => ({
-      keys: { ...state.keys, ...keys }
-    })),
+    set((state) => {
+      if (state.keys.aimControls) {
+        const current = get().keys.aimControls;
+        return { keys: { ...state.keys, aimControls: !current } };
+      } else {
+        return { keys: { ...state.keys, ...keys } };
+      }
+    }),
   updateMouseMovement: (movement) =>
     set((state) => ({
       mouseMovement: { ...state.mouseMovement, ...movement }
-    }))
+    })),
+  addKeyEvent: (key, pressed) =>
+    set((state) => ({
+      keyHistory: [
+        ...state.keyHistory.slice(-99), // Keep last 100 events
+        { key, timestamp: Date.now(), pressed }
+      ]
+    })),
+  addMouseEvent: (movement) =>
+    set((state) => ({
+      mouseHistory: [
+        ...state.mouseHistory.slice(-99), // Keep last 100 events
+        { movement, timestamp: Date.now() }
+      ]
+    })),
+
+  clearHistory: () => set({ keyHistory: [], mouseHistory: [] })
 });

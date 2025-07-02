@@ -125,9 +125,9 @@ export const updateShipMovement = ({
   velocity.current.set(0, 0, 0);
 
   // Apply movement based on keys
-  if (keys.current.forward)
+  if (keys.current.thrustForward)
     velocity.current.add(forward.clone().multiplyScalar(-speed));
-  if (keys.current.backward)
+  if (keys.current.thrustBackward)
     velocity.current.add(forward.clone().multiplyScalar(speed));
   if (keys.current.up) velocity.current.add(up.clone().multiplyScalar(speed));
   if (keys.current.down)

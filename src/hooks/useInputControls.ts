@@ -1,96 +1,87 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import type { KeyState, MouseMovement } from "@/types";
-import type { RefObject } from "react";
+import { useStore } from "@/store";
 
-interface UseInputControlsProps {
-  keys: RefObject<KeyState>;
-  mouseMovement: RefObject<MouseMovement>;
-}
+export const useInputControls = () => {
+  const { updateKeys, updateMouseMovement, addKeyEvent } = useStore();
 
-export const useInputControls = ({
-  keys,
-  mouseMovement
-}: UseInputControlsProps) => {
+  // Memoize handlers to prevent recreating on every render
+  const handleMouseMove = useCallback(
+    (event: MouseEvent) => {
+      const movement: MouseMovement = {
+        x: event.movementX,
+        y: event.movementY
+      };
+      updateMouseMovement(movement);
+    },
+    [updateMouseMovement]
+  );
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      const keyUpdate = getKeyUpdate(event.code, true);
+      if (keyUpdate) {
+        updateKeys(keyUpdate);
+        addKeyEvent(event.code, true);
+      }
+    },
+    [updateKeys, addKeyEvent]
+  );
+
+  const handleKeyUp = useCallback(
+    (event: KeyboardEvent) => {
+      const keyUpdate = getKeyUpdate(event.code, false);
+      if (keyUpdate) {
+        updateKeys(keyUpdate);
+        addKeyEvent(event.code, false);
+      }
+    },
+    [updateKeys, addKeyEvent]
+  );
+
   useEffect(() => {
-    // const handleMouseMove = (event: MouseEvent) => {
-    //   const sensitivity = 0.002;
-    //   mouseMovement.current.x = -(event.movementX || 0) * sensitivity;
-    //   mouseMovement.current.y = (event.movementY || 0) * sensitivity;
-    // };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      switch (event.code) {
-        case "KeyW":
-          keys.current.up = true;
-          break;
-        case "KeyS":
-          keys.current.down = true;
-          break;
-        case "KeyA":
-          keys.current.rollLeft = true;
-          keys.current.spinLeft = true;
-          break;
-        case "KeyD":
-          keys.current.rollRight = true;
-          keys.current.spinRight = true;
-          break;
-        case "KeyQ":
-          keys.current.spinLeft = true;
-          break;
-        case "KeyE":
-          keys.current.spinRight = true;
-          break;
-        case "Space":
-          event.preventDefault();
-          keys.current.fire = true;
-          break;
-        case "ShiftLeft":
-          keys.current.forward = true;
-          break;
-      }
-    };
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      switch (event.code) {
-        case "KeyW":
-          keys.current.up = false;
-          break;
-        case "KeyS":
-          keys.current.down = false;
-          break;
-        case "KeyA":
-          keys.current.rollLeft = false;
-          keys.current.spinLeft = false;
-          break;
-        case "KeyD":
-          keys.current.rollRight = false;
-          keys.current.spinRight = false;
-          break;
-        case "KeyQ":
-          keys.current.spinLeft = false;
-          break;
-        case "KeyE":
-          keys.current.spinRight = false;
-          break;
-        case "Space":
-          event.preventDefault();
-          keys.current.fire = false;
-          break;
-        case "ShiftLeft":
-          keys.current.forward = false;
-          break;
-      }
-    };
-
     console.info("%cMouse and keyboard listeners added", "color: #0fc");
-    // window.addEventListener("mousemove", handleMouseMove);
+
+    window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
 
+    // Cleanup function to prevent memory leaks
     return () => {
-      // window.removeEventListener("mousemove", handleMouseMove);
+      console.info("%cMouse and keyboard listeners removed", "color: #fc0");
+      window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [keys, mouseMovement]);
+  }, [handleMouseMove, handleKeyDown, handleKeyUp]);
 };
+
+function getKeyUpdate(
+  code: string,
+  pressed: boolean
+): Partial<KeyState> | null {
+  switch (code) {
+    case "KeyW":
+      return { up: pressed };
+    case "KeyS":
+      return { down: pressed };
+    case "KeyA":
+      return { rollLeft: pressed, spinLeft: pressed };
+    case "KeyD":
+      return { rollRight: pressed, spinRight: pressed };
+    case "KeyQ":
+      return { spinLeft: pressed };
+    case "KeyE":
+      return { spinRight: pressed };
+    case "Space":
+      return { fire: pressed };
+    case "ShiftLeft":
+      return { thrustForward: pressed };
+    case "KeyR":
+      return { thrustBackward: pressed };
+    case "KeyT":
+      return { aimControls: pressed };
+    default:
+      return null;
+  }
+}

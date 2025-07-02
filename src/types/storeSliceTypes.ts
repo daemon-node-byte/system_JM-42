@@ -10,15 +10,6 @@ export interface ShipStateSlice {
 
   // Engine and visuals
   isEngineActive: boolean;
-  // Laser system
-  lasers: Laser[];
-  lastFireTime: number;
-
-  // Mouse aiming
-  isAiming: boolean;
-  aimPosition: { x: number; y: number };
-  aimOffset: Vector3;
-  tiltAmount: number;
 }
 
 export interface ShipActions {
@@ -31,37 +22,60 @@ export interface ShipActions {
   // Engine and visual updates
   toggleEngine: () => void;
 
-  // Laser system actions
-  fireLaser: (laser: Laser) => void;
-  updateLasers: (lasers: Laser[]) => void;
-  setLastFireTime: (time: number) => void;
-
-  // Mouse aiming actions
-  setAiming: (isAiming: boolean) => void;
-  setAimPosition: (position: { x: number; y: number }) => void;
-  setAimOffset: (offset: Vector3) => void;
-  setTiltAmount: (tiltAmount: number) => void;
-
   resetShip: () => void; // Reset ship state to initial values
 }
 
 export interface ShipStoreSlice extends ShipStateSlice, ShipActions {}
 
+export interface LaserAimingState {
+  lasers: Laser[];
+  lastFireTime: number;
+  isAiming: boolean;
+  aimPosition: { x: number; y: number };
+  aimOffset: { x: number; y: number };
+  tiltAmount: number;
+}
+
+export interface LaserAimingActions {
+  fireLaser: (laser: Laser) => void;
+  updateLasers: (lasers: Laser[]) => void;
+  setLastFireTime: (time: number) => void;
+  setAiming: (isAiming: boolean) => void;
+  setAimPosition: (position: { x: number; y: number }) => void;
+  setAimOffset: (offset: { x: number; y: number }) => void;
+  setTiltAmount: (tiltAmount: number) => void;
+}
+
+export interface LaserAimingSlice
+  extends LaserAimingState,
+    LaserAimingActions {}
+
 export interface SceneStoreSlice {
   isLoading: boolean;
-  setLoading: (loading: boolean) => void;
+  fps: number;
+  frameTime: number;
+  setIsLoading: (loading: boolean) => void;
+  updatePerformanceMetrics: (fps: number, frameTime: number) => void;
 }
 
 export interface InputActions {
   updateKeys: (keys: Partial<KeyState>) => void;
   updateMouseMovement: (movement: Partial<MouseMovement>) => void;
+  addKeyEvent: (key: string, pressed: boolean) => void;
+  addMouseEvent: (movement: MouseMovement) => void;
+  clearHistory: () => void;
 }
 
 export interface InputState {
   keys: KeyState;
   mouseMovement: MouseMovement;
+  keyHistory: Array<{ key: string; timestamp: number; pressed: boolean }>;
+  mouseHistory: Array<{ movement: MouseMovement; timestamp: number }>;
 }
 
 export interface InputStoreSlice extends InputState, InputActions {}
 
-export type AppStore = ShipStoreSlice & SceneStoreSlice & InputStoreSlice;
+export type AppStore = ShipStoreSlice &
+  SceneStoreSlice &
+  InputStoreSlice &
+  LaserAimingSlice;

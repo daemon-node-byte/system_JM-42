@@ -1,11 +1,11 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, Trail } from "@react-three/drei";
-import { Group, Vector3, Euler } from "three";
+import { Group, Vector3 } from "three";
 
 import LaserRenderer from "./LaserRenderer";
 
-import { useInputControls, useMouseAiming, useLaserSystem } from "@/hooks";
+import { useInputControls, useMouseAiming } from "@/hooks";
 import {
   updateShipRotation,
   updateShipMovement,
@@ -16,7 +16,7 @@ import {
 import { updateCamera, reduceMouseMovement } from "@/utils";
 
 import { DEFAULT_MOVEMENT_CONFIG, DEFAULT_LASER_CONFIG } from "@/config";
-import type { KeyState, MouseMovement } from "@/types";
+import { useStore } from "@/store";
 
 const ShipModel = ({ url }: { url: string }) => {
   const { scene } = useGLTF(url);
@@ -24,139 +24,189 @@ const ShipModel = ({ url }: { url: string }) => {
   const exhaustRef = useRef<Group>(null);
   const { camera } = useThree();
 
-  // Engine state that gets updated in useFrame
-  const [isEngineActive, setIsEngineActive] = useState(false);
+  // Performance tracking refs
+  const frameCount = useRef(0);
+  const fpsStartTime = useRef(Date.now());
+  const hasLoggedModel = useRef(false);
 
-  // Laser system
-  const laserSystem = useLaserSystem();
+  // Get state and actions from store
+  const {
+    // Ship state
+    position,
+    rotation,
+    targetRotation,
+    velocity,
+    isEngineActive,
+    lasers,
+    lastFireTime,
+    isAiming,
+    aimPosition,
+    aimOffset,
+    tiltAmount,
 
-  // Mouse aiming system
+    // Input state
+    keys,
+    mouseMovement,
+
+    // Actions
+    setPosition,
+    setRotation,
+    setVelocity,
+    updateLasers: updateLasersStore,
+    setLastFireTime,
+    updateMouseMovement,
+    updatePerformanceMetrics
+  } = useStore();
+
+  // Create stable refs for physics calculations
+  const keysRef = useRef(keys);
+  const mouseMovementRef = useRef(mouseMovement);
+  const targetRotationRef = useRef(targetRotation);
+  const currentRotationRef = useRef(rotation);
+  const velocityRef = useRef(velocity);
+  const shipPositionRef = useRef(position);
+  const lasersRef = useRef(lasers);
+  const lastFireTimeRef = useRef(lastFireTime);
+
+  // Log model load only once
+  useEffect(() => {
+    if (!hasLoggedModel.current && scene) {
+      console.log("%cShip model loaded:", "color: #0fc", scene);
+      hasLoggedModel.current = true;
+    }
+  }, [scene]);
+
+  // Sync store state with refs (memoized to prevent unnecessary updates)
+  useEffect(() => {
+    keysRef.current = keys;
+    mouseMovementRef.current = mouseMovement;
+    targetRotationRef.current = targetRotation;
+    currentRotationRef.current = rotation;
+    velocityRef.current = velocity;
+    shipPositionRef.current = position;
+    lasersRef.current = lasers;
+    lastFireTimeRef.current = lastFireTime;
+  }, [
+    keys,
+    mouseMovement,
+    targetRotation,
+    rotation,
+    velocity,
+    position,
+    lasers,
+    lastFireTime
+  ]);
+
+  // Mouse aiming with store integration
   const mouseAiming = useMouseAiming({
     maxAimRadius: 250,
     tiltSensitivity: 0.004
   });
 
-  // Ship state
-  const mouseMovement = useRef<MouseMovement>({ x: 0, y: 0 });
-  const targetRotation = useRef(new Euler(0, 0, 0));
-  const currentRotation = useRef(new Euler(0, 0, 0));
-  const velocity = useRef(new Vector3(0, 0, 0));
-  const shipPosition = useRef(new Vector3(0, 0, 0));
-  const keys = useRef<KeyState>({
-    forward: false,
-    backward: false,
-    left: false,
-    right: false,
-    up: false,
-    down: false,
-    rollLeft: false,
-    rollRight: false,
-    spinLeft: false,
-    spinRight: false,
-    fire: false
-  });
+  // Input controls with store integration
+  useInputControls();
 
-  // Initialize input controls
-  useInputControls({ keys, mouseMovement });
-
-  // Dispatch aiming state changes to parent component
-  useEffect(() => {
+  // Memoized event handler to prevent recreating on every render
+  const handleAimingStateChange = useCallback(() => {
     const aimingStateChangeEvent = new CustomEvent("aimingStateChange", {
-      detail: {
-        isAiming: mouseAiming.isAiming,
-        aimPosition: mouseAiming.aimPosition
-      }
+      detail: { isAiming, aimPosition }
     });
     window.dispatchEvent(aimingStateChangeEvent);
-  }, [mouseAiming.isAiming, mouseAiming.aimPosition]);
+  }, [isAiming, aimPosition]);
 
-  // Debug: Log when model loads
-  console.log("%cShip model loaded:", "color: #0fc", scene);
+  // Dispatch aiming state changes to parent with cleanup
+  useEffect(() => {
+    handleAimingStateChange();
+
+    // Return cleanup function (though not needed for dispatchEvent)
+    return () => {
+      // Could add cleanup here if needed
+    };
+  }, [handleAimingStateChange]);
 
   useFrame((_, delta) => {
     if (!shipRef.current) return;
 
-    // Update engine active state based on current key state
-    const engineActive = keys.current.forward || keys.current.backward;
-    if (engineActive !== isEngineActive) {
-      setIsEngineActive(engineActive);
+    // Performance tracking
+    frameCount.current++;
+    if (frameCount.current % 60 === 0) {
+      const now = Date.now();
+      const fps = Math.round(60000 / (now - fpsStartTime.current));
+      updatePerformanceMetrics(fps, delta * 1000);
+      fpsStartTime.current = now;
     }
 
-    // Debug: Log key states occasionally
-    if (Math.random() < 0.01) {
-      // Log ~1% of frames
-      const activeKeys = Object.entries(keys.current)
-        .filter(([, active]) => active)
-        .map(([key]) => key);
-      if (activeKeys.length > 0) {
-        console.log("%cActive keys:", "color: #0f0", activeKeys);
-      }
-    }
-
-    // Update ship rotation based on input
+    // Update ship physics
     updateShipRotation({
-      mouseMovement,
-      targetRotation,
-      currentRotation,
-      keys,
+      mouseMovement: mouseMovementRef,
+      targetRotation: targetRotationRef,
+      currentRotation: currentRotationRef,
+      keys: keysRef,
       config: DEFAULT_MOVEMENT_CONFIG,
       delta,
-      aimTilt: mouseAiming.isAiming ? mouseAiming.tiltAmount : undefined
+      aimTilt: isAiming ? { x: tiltAmount, y: tiltAmount } : undefined
     });
 
-    // Apply rotation to ship
-    shipRef.current.rotation.copy(currentRotation.current);
-
-    // Update ship movement and position
     updateShipMovement({
-      keys,
-      currentRotation,
-      velocity,
-      shipPosition,
+      keys: keysRef,
+      currentRotation: currentRotationRef,
+      velocity: velocityRef,
+      shipPosition: shipPositionRef,
       config: DEFAULT_MOVEMENT_CONFIG,
       delta
     });
 
-    // Apply position to ship
-    shipRef.current.position.copy(shipPosition.current);
+    // Sync physics results back to store
+    setRotation(currentRotationRef.current);
+    setPosition(shipPositionRef.current);
+    setVelocity(velocityRef.current);
 
+    // Apply transforms
+    shipRef.current.rotation.copy(currentRotationRef.current);
+    shipRef.current.position.copy(shipPositionRef.current);
+
+    // Update lasers
     updateLasers({
-      lasers: laserSystem.lasers,
+      lasers: lasersRef,
       delta,
       config: DEFAULT_LASER_CONFIG
     });
 
-    // Fire lasers
     fireLaser({
-      lasers: laserSystem.lasers,
-      lastFireTime: laserSystem.lastFireTime,
-      shipPosition,
-      shipRotation: currentRotation,
-      keys,
+      lasers: lasersRef,
+      lastFireTime: lastFireTimeRef,
+      shipPosition: shipPositionRef,
+      shipRotation: currentRotationRef,
+      keys: keysRef,
       config: DEFAULT_LASER_CONFIG,
       currentTime: Date.now(),
-      aimOffset: mouseAiming.isAiming ? mouseAiming.aimOffset : undefined
+      aimOffset: isAiming ? aimOffset : undefined
     });
 
-    // Update exhaust position in world space (only if exhaustRef exists)
-    if (exhaustRef.current) {
+    // Update store with laser changes
+    updateLasersStore(lasersRef.current);
+    setLastFireTime(lastFireTimeRef.current);
+
+    // Update exhaust position
+    if (exhaustRef.current && isEngineActive) {
       const exhaustOffset = new Vector3(0, 0.2, -1.8);
-      exhaustOffset.applyEuler(currentRotation.current);
-      exhaustRef.current.position.copy(shipPosition.current).add(exhaustOffset);
+      exhaustOffset.applyEuler(currentRotationRef.current);
+      exhaustRef.current.position
+        .copy(shipPositionRef.current)
+        .add(exhaustOffset);
     }
 
-    // Update camera to follow ship
+    // Update camera
     updateCamera({
       camera,
-      shipPosition,
-      currentRotation
+      shipPosition: shipPositionRef,
+      currentRotation: currentRotationRef
     });
 
-    // Gradually reduce mouse movement influence
-    reduceMouseMovement(mouseMovement);
+    // Reduce mouse movement and sync to store
+    reduceMouseMovement(mouseMovementRef);
+    updateMouseMovement(mouseMovementRef.current);
   });
-
-  //   const isEngineActive = keys.current.forward || keys.current.backward;
 
   return (
     <>
@@ -166,7 +216,7 @@ const ShipModel = ({ url }: { url: string }) => {
       </group>
 
       {/* Laser System */}
-      <LaserRenderer lasers={laserSystem.lasers} />
+      <LaserRenderer lasers={lasersRef} />
 
       {/* Engine Trail - Outside ship group so it doesn't rotate with ship */}
       {isEngineActive && (
