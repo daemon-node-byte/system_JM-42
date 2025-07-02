@@ -1,9 +1,5 @@
 import { Vector3, Euler, Vector2 } from "three";
-import type {
-  KeyState,
-  MouseMovement,
-  MovementConfig
-} from "../components/SpaceShip/types";
+import type { KeyState, MouseMovement, MovementConfig } from "@/types";
 import type { RefObject } from "react";
 
 interface UpdateRotationParams {

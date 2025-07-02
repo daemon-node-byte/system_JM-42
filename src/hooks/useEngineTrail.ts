@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { BufferGeometry, BufferAttribute, ShaderMaterial } from "three";
-import engineVertexShader from "../../../shaders/engineTrail.vert.glsl";
-import engineFragmentShader from "../../../shaders/engineTrail.frag.glsl";
+import engineVertexShader from "@/shaders/engineTrail.vert.glsl";
+import engineFragmentShader from "@/shaders/engineTrail.frag.glsl";
 
 export const useEngineTrail = () => {
   const engineTrailGeometry = useMemo(() => {

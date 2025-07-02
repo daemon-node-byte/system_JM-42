@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { Laser, LaserSystemState } from "../components/SpaceShip/types";
+import type { Laser, LaserSystemState } from "@/types";
 
 export const useLaserSystem = (): LaserSystemState => {
   const lasers = useRef<Laser[]>([]);

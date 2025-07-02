@@ -3,19 +3,20 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, Trail } from "@react-three/drei";
 import { Group, Vector3, Euler } from "three";
 
-import { useInputControls } from "../../hooks/useInputControls";
-import { useMouseAiming } from "../../hooks/useMouseAiming";
+import LaserRenderer from "./LaserRenderer";
+
+import { useInputControls, useMouseAiming, useLaserSystem } from "@/hooks";
 import {
   updateShipRotation,
-  updateShipMovement
-} from "../../physics/shipPhysics";
-import { updateCamera } from "../../utils/cameraControls";
-import { reduceMouseMovement } from "../../utils/mouseUtils";
-import { updateLasers, fireLaser } from "../../physics/laserPhysics";
-import { useLaserSystem } from "../../hooks/useLaserSystem";
-import LaserRenderer from "./LaserRenderer";
-import { DEFAULT_MOVEMENT_CONFIG, DEFAULT_LASER_CONFIG } from "./types";
-import type { KeyState, MouseMovement } from "./types";
+  updateShipMovement,
+  updateLasers,
+  fireLaser
+} from "@/physics";
+
+import { updateCamera, reduceMouseMovement } from "@/utils";
+
+import { DEFAULT_MOVEMENT_CONFIG, DEFAULT_LASER_CONFIG } from "@/config";
+import type { KeyState, MouseMovement } from "@/types";
 
 const ShipModel = ({ url }: { url: string }) => {
   const { scene } = useGLTF(url);

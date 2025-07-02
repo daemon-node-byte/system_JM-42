@@ -1,10 +1,6 @@
 import { Vector3, Euler, Vector2 } from "three";
-import type {
-  Laser,
-  LaserConfig,
-  KeyState
-} from "../components/SpaceShip/types";
 import type { RefObject } from "react";
+import type { KeyState, Laser, LaserConfig } from "@/types";
 
 interface UpdateLasersParams {
   lasers: RefObject<Laser[]>;

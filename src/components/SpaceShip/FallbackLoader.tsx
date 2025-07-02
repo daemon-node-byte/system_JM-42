@@ -1,8 +1,13 @@
+import { Text } from "@react-three/drei";
+
 function FallbackLoader() {
   return (
     <mesh>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="blue" />
+      <Text anchorX="center" anchorY="middle">
+        Loading...
+      </Text>
+      {/* <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color="blue" /> */}
     </mesh>
   );
 }

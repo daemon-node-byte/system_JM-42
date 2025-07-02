@@ -1,15 +1,15 @@
 import { Vector3, Euler, Points, ShaderMaterial } from "three";
-import type { KeyState } from "../components/SpaceShip/types";
-import type { MutableRefObject } from "react";
+import type { KeyState } from "@/types";
+import type { RefObject } from "react";
 
 interface UpdateEngineTrailParams {
-  engineParticlesRef: MutableRefObject<Points | null>;
+  engineParticlesRef: RefObject<Points | null>;
   engineTrailMaterial: ShaderMaterial;
-  keys: MutableRefObject<KeyState>;
-  velocity: MutableRefObject<Vector3>;
-  shipPosition: MutableRefObject<Vector3>;
-  currentRotation: MutableRefObject<Euler>;
-  particleTrail: MutableRefObject<Vector3[]>;
+  keys: RefObject<KeyState>;
+  velocity: RefObject<Vector3>;
+  shipPosition: RefObject<Vector3>;
+  currentRotation: RefObject<Euler>;
+  particleTrail: RefObject<Vector3[]>;
   elapsedTime: number;
 }
 

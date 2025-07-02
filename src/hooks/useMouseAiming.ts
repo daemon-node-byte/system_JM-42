@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Vector2 } from "three";
-// import type { RefObject } from "react";
 
 interface MouseAimingState {
   aimOffset: Vector2;

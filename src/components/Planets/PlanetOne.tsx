@@ -1,17 +1,16 @@
 import { Suspense, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
-import { Group } from "three";
+import type { Group } from "three";
 
 const PlanetOne = () => {
   const planetRef = useRef<Group>(null);
   const texturePath = "/materials/_texture";
-  const props = useTexture({
+  const texture = useTexture({
     map: texturePath + "/color.jpeg",
     displacementMap: texturePath + "/displace.png",
     normalMap: texturePath + "/normal2.png",
     aoMap: texturePath + "/aomap.png"
-    // roughnessMap: texturePath + "/specular.png"
   });
   useFrame((_, delta) => {
     if (planetRef.current) {
@@ -27,7 +26,7 @@ const PlanetOne = () => {
       >
         <mesh>
           <sphereGeometry args={[3, 1024, 1024]} />
-          <meshStandardMaterial {...props} />
+          <meshStandardMaterial {...texture} />
         </mesh>
       </group>
     </Suspense>
