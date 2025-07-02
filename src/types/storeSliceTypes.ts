@@ -8,10 +8,6 @@ export interface ShipStateSlice {
   targetRotation: Euler;
   velocity: Vector3;
 
-  // Input states
-  keys: KeyState;
-  mouseMovement: MouseMovement;
-
   // Engine and visuals
   isEngineActive: boolean;
   // Laser system
@@ -31,10 +27,6 @@ export interface ShipActions {
   setRotation: (rotation: Euler) => void;
   setTargetRotation: (targetRotation: Euler) => void;
   setVelocity: (velocity: Vector3) => void;
-
-  // Input updates
-  updateKeys: (keys: Partial<KeyState>) => void;
-  updateMouseMovement: (movement: Partial<MouseMovement>) => void;
 
   // Engine and visual updates
   toggleEngine: () => void;
@@ -59,3 +51,17 @@ export interface SceneStoreSlice {
   isLoading: boolean;
   setLoading: (loading: boolean) => void;
 }
+
+export interface InputActions {
+  updateKeys: (keys: Partial<KeyState>) => void;
+  updateMouseMovement: (movement: Partial<MouseMovement>) => void;
+}
+
+export interface InputState {
+  keys: KeyState;
+  mouseMovement: MouseMovement;
+}
+
+export interface InputStoreSlice extends InputState, InputActions {}
+
+export type AppStore = ShipStoreSlice & SceneStoreSlice & InputStoreSlice;

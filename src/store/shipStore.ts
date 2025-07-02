@@ -3,7 +3,7 @@ import { Vector3, Euler } from "three";
 import type {
   ShipStateSlice,
   ShipStoreSlice,
-  SceneStoreSlice
+  AppStore
 } from "@/types/storeSliceTypes";
 
 const initialShipState: ShipStateSlice = {
@@ -11,20 +11,6 @@ const initialShipState: ShipStateSlice = {
   rotation: new Euler(0, 0, 0),
   targetRotation: new Euler(0, 0, 0),
   velocity: new Vector3(0, 0, 0),
-  keys: {
-    forward: false,
-    backward: false,
-    left: false,
-    right: false,
-    up: false,
-    down: false,
-    rollLeft: false,
-    rollRight: false,
-    spinLeft: false,
-    spinRight: false,
-    fire: false
-  },
-  mouseMovement: { x: 0, y: 0 },
   isEngineActive: false,
   lasers: [],
   lastFireTime: 0,
@@ -34,12 +20,9 @@ const initialShipState: ShipStateSlice = {
   tiltAmount: 0
 };
 
-export const createShipSlice: StateCreator<
-  ShipStoreSlice & SceneStoreSlice,
-  [],
-  [],
-  ShipStoreSlice
-> = (set) => ({
+export const createShipSlice: StateCreator<AppStore, [], [], ShipStoreSlice> = (
+  set
+) => ({
   ...initialShipState,
 
   setPosition: (position) => set({ position }),
@@ -48,14 +31,6 @@ export const createShipSlice: StateCreator<
   setVelocity: (velocity) => set({ velocity }),
   toggleEngine: () =>
     set((state) => ({ isEngineActive: !state.isEngineActive })),
-  updateKeys: (keys) =>
-    set((state) => ({
-      keys: { ...state.keys, ...keys }
-    })),
-  updateMouseMovement: (movement) =>
-    set((state) => ({
-      mouseMovement: { ...state.mouseMovement, ...movement }
-    })),
   fireLaser: (laser) =>
     set((state) => ({
       lasers: [...state.lasers, laser]

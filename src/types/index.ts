@@ -10,5 +10,9 @@ export type {
   ShipStateSlice,
   ShipActions,
   ShipStoreSlice,
-  SceneStoreSlice
+  SceneStoreSlice,
+  InputStoreSlice,
+  InputActions,
+  InputState,
+  AppStore
 } from "./storeSliceTypes";

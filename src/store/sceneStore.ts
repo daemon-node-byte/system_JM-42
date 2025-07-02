@@ -1,8 +1,8 @@
 import type { StateCreator } from "zustand";
-import type { SceneStoreSlice, ShipStoreSlice } from "@/types";
+import type { SceneStoreSlice, AppStore } from "@/types";
 
 export const createSceneSlice: StateCreator<
-  SceneStoreSlice & ShipStoreSlice,
+  AppStore,
   [],
   [],
   SceneStoreSlice
