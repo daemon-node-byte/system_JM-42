@@ -21,8 +21,8 @@ const PlanetOne = () => {
     <Suspense fallback={null}>
       <group
         ref={planetRef}
-        scale={[100, 100, 100]}
-        position={[-500, -500, 1000]}
+        scale={[500, 500, 500]}
+        position={[-500, -500, -100000]}
       >
         <mesh>
           <sphereGeometry args={[3, 1024, 1024]} />

@@ -60,15 +60,21 @@ function getKeyUpdate(
   code: string,
   pressed: boolean
 ): Partial<KeyState> | null {
+  console.log(
+    `%cKey Event: %c${code} - ${pressed ? "%cPressed" : "%cReleased"}`,
+    "color: #0fc",
+    "color: #fff",
+    pressed ? "color: #0f0" : "color: #999"
+  );
   switch (code) {
     case "KeyW":
       return { up: pressed };
     case "KeyS":
       return { down: pressed };
     case "KeyA":
-      return { rollLeft: pressed, spinLeft: pressed };
+      return { rollLeft: pressed };
     case "KeyD":
-      return { rollRight: pressed, spinRight: pressed };
+      return { rollRight: pressed };
     case "KeyQ":
       return { spinLeft: pressed };
     case "KeyE":

@@ -23,5 +23,15 @@ export const createLaserAimingSlice: StateCreator<
       lastFireTime: Date.now()
     })),
   updateLasers: (lasers) => set({ lasers }),
-  setLastFireTime: (time) => set({ lastFireTime: time })
+  setLastFireTime: (time) => set({ lastFireTime: time }),
+
+  resetLasers: () =>
+    set({
+      lasers: [],
+      lastFireTime: 0,
+      isAiming: false,
+      aimPosition: { x: 0, y: 0 },
+      aimOffset: { x: 0, y: 0 },
+      tiltAmount: 0
+    })
 });

@@ -1,12 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useStore } from "@/store";
-
-interface MouseAimingState {
-  aimOffset: { x: number; y: number };
-  isAiming: boolean;
-  aimPosition: { x: number; y: number };
-  tiltAmount: { x: number; y: number };
-}
 
 interface UseMouseAimingProps {
   maxAimRadius?: number;
@@ -16,18 +9,57 @@ interface UseMouseAimingProps {
 export const useMouseAiming = ({
   maxAimRadius = 200,
   tiltSensitivity = 0.003
-}: UseMouseAimingProps = {}): MouseAimingState => {
+}: UseMouseAimingProps = {}) => {
   const centerPos = useRef<{ x: number; y: number }>({
     x: 0,
     y: 0
   });
-  const { isAiming, aimOffset, aimPosition, tiltAmount } = useStore(
-    (state) => state
+
+  const { handleAimingUpdate, keys } = useStore();
+
+  const handleMouseMove = useCallback(
+    (event: MouseEvent) => {
+      if (!keys.aimControls) return;
+
+      // Calculate offset from screen center
+      const offsetX = event.clientX - centerPos.current.x;
+      const offsetY = event.clientY - centerPos.current.y;
+
+      // Calculate distance from center
+      const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+
+      // Clamp to maximum radius
+      let clampedX = offsetX;
+      let clampedY = offsetY;
+      if (distance > maxAimRadius) {
+        const ratio = maxAimRadius / distance;
+        clampedX = offsetX * ratio;
+        clampedY = offsetY * ratio;
+      }
+
+      // Calculate tilt based on offset
+      const tiltX = clampedX * tiltSensitivity;
+      const tiltY = clampedY * tiltSensitivity;
+
+      // Update store with new aiming data
+      handleAimingUpdate({
+        isAiming: keys.aimControls,
+        aimPosition: {
+          x: centerPos.current.x + clampedX,
+          y: centerPos.current.y + clampedY
+        },
+        aimOffset: {
+          x: clampedX,
+          y: clampedY
+        },
+        tiltAmount: Math.sqrt(tiltX * tiltX + tiltY * tiltY)
+      });
+    },
+    [keys.aimControls, maxAimRadius, tiltSensitivity, handleAimingUpdate]
   );
 
   useEffect(() => {
     function updateCenter() {
-      // Calculate screen center
       centerPos.current = {
         x: window.innerWidth / 2,
         y: window.innerHeight / 2
@@ -36,46 +68,23 @@ export const useMouseAiming = ({
     updateCenter();
 
     window.addEventListener("resize", updateCenter);
-
-    /* *TODO - Offset calculations
-      // Calculate offset from screen center
-      const offsetX = event.clientX - centerPos.current.x;
-      const offsetY = event.clientY - centerPos.current.y;
-      // Calculate distance from center
-      const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-
-      // TODO: Implement clamping logic
-      // * didn't work with crosshairs, needs to be rethought
-      // Clamp to maximum radius
-      if (distance > maxAimRadius) {
-        // const angle = Math.atan2(offsetY, offsetX);
-        // const clampedX = Math.cos(angle) * maxAimRadius;
-        // const clampedY = Math.sin(angle) * maxAimRadius;
-        // aimOffset.current.set(clampedX, clampedY);
-      } else {
-        // aimOffset.current.set(offsetX, offsetY);
-      }
-      */
-
-    // Calculate tilt amounts (normalized)
-    // const normalizedX = aimOffset.current.x / maxAimRadius;
-    // const normalizedY = aimOffset.current.y / maxAimRadius;
-
-    // tiltAmount.current.set(
-    //   normalizedX * tiltSensitivity,
-    //   -normalizedY * tiltSensitivity // Invert Y for proper tilt direction
-    // );
-
-    // setAimPosition({
-    //   x: event.clientX,
-    //   y: event.clientY
-    // });
-    // };
-
-    // Add event listeners
+    window.addEventListener("mousemove", handleMouseMove);
 
     return () => {
       window.removeEventListener("resize", updateCenter);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [maxAimRadius, tiltSensitivity]);
+  }, [handleMouseMove]);
+
+  // Update aiming state when aimControls key changes
+  useEffect(() => {
+    if (!keys.aimControls) {
+      handleAimingUpdate({
+        isAiming: false,
+        aimPosition: { x: centerPos.current.x, y: centerPos.current.y },
+        aimOffset: { x: 0, y: 0 },
+        tiltAmount: 0
+      });
+    }
+  }, [keys.aimControls, handleAimingUpdate]);
 };

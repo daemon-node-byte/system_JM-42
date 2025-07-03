@@ -1,7 +1,7 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, Trail } from "@react-three/drei";
-import { Group, Vector3 } from "three";
+import { Group, Vector3, Vector2 } from "three";
 
 import LaserRenderer from "./LaserRenderer";
 
@@ -55,6 +55,7 @@ const ShipModel = ({ url }: { url: string }) => {
     updateLasers: updateLasersStore,
     setLastFireTime,
     updateMouseMovement,
+    handleEngineToggle,
     updatePerformanceMetrics
   } = useStore();
 
@@ -98,7 +99,7 @@ const ShipModel = ({ url }: { url: string }) => {
   ]);
 
   // Mouse aiming with store integration
-  const mouseAiming = useMouseAiming({
+  useMouseAiming({
     maxAimRadius: 250,
     tiltSensitivity: 0.004
   });
@@ -106,26 +107,14 @@ const ShipModel = ({ url }: { url: string }) => {
   // Input controls with store integration
   useInputControls();
 
-  // Memoized event handler to prevent recreating on every render
-  const handleAimingStateChange = useCallback(() => {
-    const aimingStateChangeEvent = new CustomEvent("aimingStateChange", {
-      detail: { isAiming, aimPosition }
-    });
-    window.dispatchEvent(aimingStateChangeEvent);
-  }, [isAiming, aimPosition]);
-
-  // Dispatch aiming state changes to parent with cleanup
-  useEffect(() => {
-    handleAimingStateChange();
-
-    // Return cleanup function (though not needed for dispatchEvent)
-    return () => {
-      // Could add cleanup here if needed
-    };
-  }, [handleAimingStateChange]);
+  // Remove manual event dispatching since it's handled in the store
+  // useEffect hook removed to prevent duplication
 
   useFrame((_, delta) => {
     if (!shipRef.current) return;
+
+    // Update engine state using shared store action
+    handleEngineToggle();
 
     // Performance tracking
     frameCount.current++;
@@ -144,7 +133,9 @@ const ShipModel = ({ url }: { url: string }) => {
       keys: keysRef,
       config: DEFAULT_MOVEMENT_CONFIG,
       delta,
-      aimTilt: isAiming ? { x: tiltAmount, y: tiltAmount } : undefined
+      aimTilt: isAiming
+        ? new Vector2(aimOffset.x * 0.001, aimOffset.y * 0.001)
+        : undefined
     });
 
     updateShipMovement({
@@ -180,7 +171,7 @@ const ShipModel = ({ url }: { url: string }) => {
       keys: keysRef,
       config: DEFAULT_LASER_CONFIG,
       currentTime: Date.now(),
-      aimOffset: isAiming ? aimOffset : undefined
+      aimOffset: isAiming ? new Vector2(aimOffset.x, aimOffset.y) : undefined
     });
 
     // Update store with laser changes

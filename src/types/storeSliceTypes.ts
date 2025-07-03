@@ -54,6 +54,8 @@ export interface SceneStoreSlice {
   isLoading: boolean;
   fps: number;
   frameTime: number;
+  cameraPosition: Vector3;
+  setCameraPosition: (position: Vector3) => void;
   setIsLoading: (loading: boolean) => void;
   updatePerformanceMetrics: (fps: number, frameTime: number) => void;
 }
@@ -73,9 +75,38 @@ export interface InputState {
   mouseHistory: Array<{ movement: MouseMovement; timestamp: number }>;
 }
 
-export interface InputStoreSlice extends InputState, InputActions {}
+export interface InputStoreSlice extends InputState, InputActions {
+  resetInput: () => void;
+}
+
+export interface SharedStoreSlice {
+  // Game state
+  isPaused: boolean;
+  gameSpeed: number;
+
+  // Cross-slice actions
+  togglePause: () => void;
+  handleEngineToggle: () => void;
+  handleAimingUpdate: (aimingData: {
+    isAiming: boolean;
+    aimPosition: { x: number; y: number };
+    aimOffset: { x: number; y: number };
+    tiltAmount: number;
+  }) => void;
+  updatePerformanceMetrics: (fps: number, frameTime: number) => void;
+  resetAll: () => void;
+
+  // Computed getters as actions
+  getEngineIntensity: () => number;
+  getMovementVector: () => Vector3;
+}
+
+export interface LaserAimingSlice extends LaserAimingState, LaserAimingActions {
+  resetLasers: () => void;
+}
 
 export type AppStore = ShipStoreSlice &
   SceneStoreSlice &
   InputStoreSlice &
-  LaserAimingSlice;
+  LaserAimingSlice &
+  SharedStoreSlice;

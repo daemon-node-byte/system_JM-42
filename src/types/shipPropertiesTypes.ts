@@ -31,3 +31,30 @@ export interface LaserSystemState {
   lastFireTime: RefObject<number>;
   fireKey: boolean;
 }
+
+export type EngineOffset = {
+  size: number;
+  position: Vector3;
+};
+
+export type WeaponSystem = {
+  type: "beam" | "orb";
+  damage: number;
+  fireRate: number;
+  projectileSpeed: number;
+  projectileLifetime: number;
+  projectileColor: string;
+  offset: Vector3;
+};
+
+export interface ShipProperties {
+  id: string;
+  modelUrl: string;
+  name: string;
+  maxSpeed: number;
+  acceleration: number;
+  cameraOffset: Vector3;
+  engineOffset: EngineOffset | EngineOffset[];
+  exhaustColor: string;
+  weaponsSystem: WeaponSystem;
+}

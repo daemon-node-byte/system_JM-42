@@ -62,5 +62,26 @@ export const createInputSlice: StateCreator<
       ]
     })),
 
-  clearHistory: () => set({ keyHistory: [], mouseHistory: [] })
+  clearHistory: () => set({ keyHistory: [], mouseHistory: [] }),
+
+  resetInput: () =>
+    set({
+      keys: {
+        thrustForward: false,
+        thrustBackward: false,
+        left: false,
+        right: false,
+        up: false,
+        down: false,
+        rollLeft: false,
+        rollRight: false,
+        spinLeft: false,
+        spinRight: false,
+        fire: false,
+        aimControls: false
+      },
+      mouseMovement: { x: 0, y: 0 },
+      keyHistory: [],
+      mouseHistory: []
+    })
 });

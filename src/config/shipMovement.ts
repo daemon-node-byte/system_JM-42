@@ -18,3 +18,5 @@ export const DEFAULT_LASER_CONFIG: LaserConfig = {
   size: 0.1,
   damage: 10
 };
+
+export const DEFAULT_SHIP = {};

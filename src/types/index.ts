@@ -4,7 +4,10 @@ export type {
   ShipRefs,
   ShipState,
   Laser,
-  LaserSystemState
+  LaserSystemState,
+  ShipProperties,
+  WeaponSystem,
+  EngineOffset
 } from "./shipPropertiesTypes";
 export type {
   ShipStateSlice,
