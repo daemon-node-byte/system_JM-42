@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.history
+ref
+.qodo
+.codacy
+
+
+public/assets/models/*
+
+!/public/assets/models/nasa_shuttle
