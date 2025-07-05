@@ -3,14 +3,19 @@ import { useStore } from "@/store";
 import type { KeyboardKeys } from "@/types";
 
 const keyMap: Record<string, KeyboardKeys> = {
-  KeyW: "forward",
-  KeyS: "backward",
-  KeyA: "left",
-  KeyD: "right",
-  Space: "up",
-  ShiftLeft: "down",
-  ArrowLeft: "turnLeft",
-  ArrowRight: "turnRight"
+  KeyW: "thrustForward",
+  KeyS: "reverseThrust",
+  KeyA: "leftRoll",
+  KeyD: "rightRoll",
+  KeyQ: "turnLeft",
+  KeyE: "turnRight",
+  KeyX: "up",
+  KeyZ: "down",
+  ArrowUp: "pitchUp",
+  ArrowDown: "pitchDown",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+  Space: "fireWeapon"
 };
 //*ANCHOR - Keyboard Controls hook and map
 export const useKeyboardEvents = () => {

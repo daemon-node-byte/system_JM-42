@@ -7,13 +7,18 @@ export const createKeyboardSlice: StateCreator<
   [],
   KeyboardStoreSlice
 > = (set) => ({
-  forward: false,
-  backward: false,
+  thrustForward: false,
+  reverseThrust: false,
   left: false,
   right: false,
   up: false,
   down: false,
+  pitchUp: false,
+  pitchDown: false,
   turnLeft: false,
   turnRight: false,
+  leftRoll: false,
+  rightRoll: false,
+  fireWeapon: false,
   setKey: (key, value) => set({ [key]: value })
 });

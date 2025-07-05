@@ -9,7 +9,7 @@ interface PhysicsProviderProps {
 const PhysicsProvider = ({ children }: PhysicsProviderProps) => {
   const { gravity, colliders } = PHYSICS_SETTINGS;
   return (
-    <Physics gravity={gravity} colliders={colliders}>
+    <Physics debug gravity={gravity} colliders={colliders}>
       {children}
     </Physics>
   );

@@ -24,25 +24,35 @@ export interface PlayerStatsSlice {
 }
 
 export interface KeyboardStoreSlice {
-  forward: boolean;
-  backward: boolean;
+  thrustForward: boolean;
+  reverseThrust: boolean;
   left: boolean;
   right: boolean;
   up: boolean;
   down: boolean;
+  pitchUp: boolean;
+  pitchDown: boolean;
   turnLeft: boolean;
   turnRight: boolean;
+  leftRoll: boolean;
+  rightRoll: boolean;
+  fireWeapon: boolean;
   setKey: (key: keyof KeyboardStoreSlice, value: boolean) => void;
 }
 
 export type AppStore = SceneSlice & PlayerStatsSlice & KeyboardStoreSlice;
 
 export type KeyboardKeys =
-  | "forward"
-  | "backward"
+  | "thrustForward"
+  | "reverseThrust"
   | "left"
   | "right"
   | "up"
   | "down"
-  | "turnLeft"
-  | "turnRight";
+  | "pitchUp"
+  | "pitchDown"
+  | "turnLeft" //spin
+  | "turnRight" // spin
+  | "leftRoll"
+  | "rightRoll"
+  | "fireWeapon";
